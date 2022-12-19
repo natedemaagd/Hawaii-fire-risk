@@ -3,7 +3,7 @@
 # The delta rasters zero out pixels with insignificant deltas based on SEs.
 
 library(raster); library(ggplot2); library(viridis);library(gridExtra); library(cowplot)
-library(scales)
+library(scales); library(sf)
 
 # list rasters
 vec_filenamesCurrent <- list.files('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/prediction_rasters_mean/prediction rasters mean by season/', pattern = '.tif')
@@ -14,6 +14,9 @@ vec_filenamesDelta <- c(list.files('H:/My Drive/Projects/PICASC Land-to-sea/Data
 # load risk thresholds
 load("H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/10_determine high risk threshold.Rdata")
 rm(dat_fire, dat_fire2); gc()
+
+# load mountain peak shapefiles
+sf_mountaintops <- read_sf("D:/OneDrive - hawaii.edu/Documents/Projects/Data/Shapefiles/Hawaii mountaintops/masked_area.shp")
 
 # definitions
 vec_islands <- c('Oahu', 'Kauai', 'MauiCounty', 'Hawaii')
@@ -33,6 +36,11 @@ vec_viridis <- viridis(8)
 vec_viridis <- c(vec_viridis[[1]], 'lightgray',
                  vec_viridis[[4]], vec_viridis[[8]])
 
+# load fire risk thresholds
+load("H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/10_determine high risk threshold.Rdata")
+rm(dat_fire,  dat_fire2)
+
+# create plots - loop by island
 for(i in 1:length(vec_islands)){
   
   
@@ -43,6 +51,15 @@ for(i in 1:length(vec_islands)){
                              'mean current fire prob ',
                              vec_islands[[i]],
                              ' overall annual.tif'))
+  
+  # on first loop, re-project mountaintop shapefile
+  if(i == 1){
+    sf_mountaintops <- st_transform(sf_mountaintops, crs(r_current))
+  }
+  
+  # mask mountaintops
+  r_current <- mask(r_current, sf_mountaintops,
+                    updatevalue = 0, inverse = TRUE)
   
   # create legend breaks and labels
   vec_legendBreaksCurrent <- seq(min(values(r_current), na.rm = TRUE),
@@ -57,18 +74,59 @@ for(i in 1:length(vec_islands)){
   plotdatCurrent <- plotdatCurrent[!is.na(plotdatCurrent$prob),]
   gc()
   
-  # create plot
+  # # create plot
+  # p_current <- ggplot(data = plotdatCurrent,
+  #                     aes(x = x, y = y, fill = prob)) +
+  #   geom_raster() +
+  #   coord_equal() +
+  #   scale_fill_viridis(limits = range(vec_legendBreaksCurrent),
+  #                      breaks = vec_legendBreaksCurrent,
+  #                      labels = vec_legendLabelsCurrent,
+  #                      option = 'turbo') +
+  #   theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.text = element_blank(),
+  #         panel.background = element_blank(), text = element_text(size = 16),
+  #         legend.key.height= unit(0.75, 'cm')) +
+  #   labs(fill = 'Annual fire\nprobability (%)',
+  #        title = 'Current')
+  
+  # create alternate plot: categories instead of continuous
+  plotdatCurrent$probCategory <-
+    with(plotdatCurrent,
+         ifelse(prob >= highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+                                           'hiRiskThresh_75pctileBurned'],
+                'Very high',
+         ifelse(prob >= highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+                                           'hiRiskThresh_50pctileBurned'] &
+                prob <  highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+                                           'hiRiskThresh_75pctileBurned'],
+                'High',
+         ifelse(prob >= highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+                                           'hiRiskThresh_25pctileBurned'] &
+                prob <  highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+                                           'hiRiskThresh_50pctileBurned'],
+                'Moderate',
+         ifelse(prob <  highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+                                           'hiRiskThresh_25pctileBurned'],
+                'Low',
+                NA
+                )
+         )
+         )
+         )
+         )
+  plotdatCurrent$probCategory <-
+    factor(plotdatCurrent$probCategory,
+           levels = c('Very high', 'High', 'Moderate', 'Low'))
+  
   p_current <- ggplot(data = plotdatCurrent,
-                      aes(x = x, y = y, fill = prob)) +
+                      aes(x = x, y = y, fill = probCategory)) +
     geom_raster() +
     coord_equal() +
-    scale_fill_viridis(limits = range(vec_legendBreaksCurrent),
-                       breaks = vec_legendBreaksCurrent,
-                       labels = vec_legendLabelsCurrent) +
+    scale_fill_manual(values = rev(turbo(4)), drop = FALSE) +
     theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.text = element_blank(),
           panel.background = element_blank(), text = element_text(size = 16),
           legend.key.height= unit(0.75, 'cm')) +
-    labs(fill = 'Annual fire\nprobability (%)',
+    labs(fill = 'Annual fire\nprobability',
          title = 'Current')
   
   
@@ -89,6 +147,14 @@ for(i in 1:length(vec_islands)){
   names(list_rDeltas) <- c('Mid-century statistical',
                            'End-of-century statistical',
                            'End-of-century dynamical')
+  
+  # mask delta rasters with mountaintop shapefile
+  list_rDeltas <- lapply(
+    list_rDeltas, function(r){
+      mask(r, sf_mountaintops,
+           updatevalue = 0, inverse = TRUE)
+    }
+  )
   
   # create data.frame of delta rasters
   plotdatDelta <- lapply(list_rDeltas, function(r){
@@ -137,7 +203,48 @@ for(i in 1:length(vec_islands)){
                                max(vec_legendBreaksDelta)))
   }
   
-  # plot delta maps
+  # # plot delta maps
+  # p_deltas <- list()
+  # for(m in 1:length(list_rDeltas)){
+  #   p_deltas[[m]] <- ggplot() +
+  #     
+  #     # plot deltas
+  #     geom_raster(data = plotdatDelta[plotdatDelta$model ==
+  #                                       names(list_rDeltas)[[m]],],
+  #                 aes(x = x, y = y, fill = delta)) +
+  #     scale_fill_gradientn(limits = range(vec_legendBreaksDelta),
+  #                          breaks = vec_legendBreaksDelta,
+  #                          labels = vec_legendLabelsDelta,
+  #                          values = vec_colorVals,
+  #                          colors = vec_viridisDelta) +
+  #     
+  #     # gray-out statistically-insignificant deltas
+  #     geom_raster(data = plotdatDeltaInsig[plotdatDeltaInsig$model ==
+  #                                            names(list_rDeltas)[[m]],],
+  #                 aes(x = x, y = y), fill = 'lightgray') +
+  #     
+  #     coord_equal() +
+  #     theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.text = element_blank(),
+  #           panel.background = element_blank(), text = element_text(size = 16),
+  #           legend.key.height= unit(0.75, 'cm')) +
+  #     labs(fill = 'Change in fire\nprobability (%)',
+  #          title = names(list_rDeltas)[[m]])
+  # }
+  
+  # alternate plot: increase or decrease rather than percent change
+  plotdatDelta$deltaCategory <-
+    with(plotdatDelta,
+         ifelse(delta < 0, 'Decrease',
+         ifelse(delta > 0, 'Increase',
+         ifelse(delta == 0, 'No change',
+                NA)
+         )
+         )
+         )
+  plotdatDelta$deltaCategory <-
+    factor(plotdatDelta$deltaCategory,
+           levels = c('Increase', 'No change', 'Decrease'))
+  
   p_deltas <- list()
   for(m in 1:length(list_rDeltas)){
     p_deltas[[m]] <- ggplot() +
@@ -145,12 +252,9 @@ for(i in 1:length(vec_islands)){
       # plot deltas
       geom_raster(data = plotdatDelta[plotdatDelta$model ==
                                         names(list_rDeltas)[[m]],],
-                  aes(x = x, y = y, fill = delta)) +
-      scale_fill_gradientn(limits = range(vec_legendBreaksDelta),
-                           breaks = vec_legendBreaksDelta,
-                           labels = vec_legendLabelsDelta,
-                           values = vec_colorVals,
-                           colors = vec_viridisDelta) +
+                  aes(x = x, y = y, fill = deltaCategory)) +
+      scale_fill_manual(values = c(turbo(2)[[2]], 'lightgray', turbo(2)[[1]]),
+                        drop = FALSE) +
       
       # gray-out statistically-insignificant deltas
       geom_raster(data = plotdatDeltaInsig[plotdatDeltaInsig$model ==
@@ -161,11 +265,52 @@ for(i in 1:length(vec_islands)){
       theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.text = element_blank(),
             panel.background = element_blank(), text = element_text(size = 16),
             legend.key.height= unit(0.75, 'cm')) +
-      labs(fill = 'Change in fire\nprobability (%)',
+      labs(fill = 'Change in fire\nprobability',
            title = names(list_rDeltas)[[m]])
   }
   
   gc()
+  
+  # # alternate plot: increase/decrease bins instead of continuous values
+  # plotdatDelta$deltaCategory <-
+  #   with(plotdatDelta,
+  #        ifelse(delta < 0, 'Decrease',
+  #        ifelse(delta > 0 & delta <= quantile(delta, probs = 0.75), 'Slight increase',
+  #        ifelse(delta > quantile(delta, probs = 0.75), 'Increase',
+  #        ifelse(delta == 0, 'No change',
+  #               NA)
+  #        )
+  #        )
+  #        )
+  #        )
+  # plotdatDelta$deltaCategory <-
+  #   factor(plotdatDelta$deltaCategory,
+  #          levels = c('Increase', 'Slight increase', 'No change', 'Decrease')
+  #          )
+  # 
+  # p_deltas <- list()
+  # for(m in 1:length(list_rDeltas)){
+  #   p_deltas[[m]] <- ggplot() +
+  #     
+  #     # plot deltas
+  #     geom_raster(data = plotdatDelta[plotdatDelta$model ==
+  #                                       names(list_rDeltas)[[m]],],
+  #                 aes(x = x, y = y, fill = deltaCategory)) +
+  #     scale_fill_manual(values = c(turbo(3)[[3]], turbo(3)[[2]], 'lightgray', turbo(3)[[1]]),
+  #                       drop = FALSE) +
+  #     
+  #     # gray-out statistically-insignificant deltas
+  #     geom_raster(data = plotdatDeltaInsig[plotdatDeltaInsig$model ==
+  #                                            names(list_rDeltas)[[m]],],
+  #                 aes(x = x, y = y), fill = 'lightgray') +
+  #     
+  #     coord_equal() +
+  #     theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.text = element_blank(),
+  #           panel.background = element_blank(), text = element_text(size = 16),
+  #           legend.key.height= unit(0.75, 'cm')) +
+  #     labs(fill = 'Change in fire\nprobability',
+  #          title = names(list_rDeltas)[[m]])
+  # }
   
   
   

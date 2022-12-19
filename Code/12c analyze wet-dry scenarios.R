@@ -98,6 +98,12 @@ for(i in 1:length(islands)){
                                                                                   ifelse(value >= vec_riskLevel[[3]],                              'Very high', NA)))))
   dat_fireProbAndRisk$riskLevel <- factor(dat_fireProbAndRisk$riskLevel, levels = c('Very high', 'High', 'Moderate', 'Low'))
   
+  # export fire risk levels
+  write.csv(dat_fireProbAndRisk,
+            file = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/12c fire risk level thresholds/',
+                          'fire risk threshold - ', islands[[i]], '.csv'),
+            row.names = FALSE)
+  
   
   
   

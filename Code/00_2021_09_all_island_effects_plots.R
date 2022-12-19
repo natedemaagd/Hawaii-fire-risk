@@ -201,7 +201,7 @@ predictornames_df<-data.frame(predictornames=c("herbcov_yearof", "woodcov_yearof
                                                "aspect" ,"roughness"), 
                               label         =c("Same-year herbaceous landcover (%)", "Same-year woody landcover (%)", "Same-year bare landcover (%)",
                                                "Mean annual rainfall (mm)", "Min. monthly soil moisture",
-                                               "Mean annual temperature (C)", "ign_trns","HI_DEM_10m" , "X2020_Hawaii_population_GHS_global_250m",
+                                               "Mean annual temperature (C)", "Ignition density","HI_DEM_10m" , "X2020_Hawaii_population_GHS_global_250m",
                                                "Rainfall, previous 12 months (mm)", "Rainfall, previous 3 months (mm)", "Rainfall, previous month (mm)", "Rainfall, previous month (mm)", "Same-month rainfall (mm)",
                                                "Aspect" ,"Roughness"))
 
@@ -358,9 +358,9 @@ probggplot <- function(predictor, bins = 40, maxprob = NA, errorBarWidth = 0){
 # create plots
 predictors_to_plot <- c('herbcov_yearof', 'woodcov_yearof', 'HI_EVAP_min_monthly_soil_mst',
                         'mean_annual_temp', 'monthly_cumrf_3mo',
-                        'monthly_cumrf_12mo', 'rf_1mo_prior')
+                        'monthly_cumrf_12mo', 'rf_1mo_prior', 'ign_trns')
 
-y_axis_limits <- c(NA,NA,NA,NA,NA,NA,NA)  # change y-axis limit of figure i if needed
+y_axis_limits <- c(NA,NA,NA,NA,NA,NA,NA,NA)  # change y-axis limit of figure i if needed
 
 for(i in 1:length(predictors_to_plot)){
   
