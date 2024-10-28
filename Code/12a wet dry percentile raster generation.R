@@ -20,7 +20,7 @@ vec_historicalRainfallFileNames <- list.files('H:/My Drive/Projects/PICASC Land-
 
 # for each island, load historical rainfall
 foreach(i = 1:length(vec_islands), .packages = c('raster', 'stringr')) %dopar% {
-  for(m in 5:12){
+  for(m in 1:12){
     
     # list all files for island i and month m
     files <- vec_historicalRainfallFileNames[str_detect(vec_historicalRainfallFileNames, vec_islands[[i]]) &   # subset filenames by island

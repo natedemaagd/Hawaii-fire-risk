@@ -1,6 +1,6 @@
 
 # this script tabulates how many hectares surpass each risk threshold each month
-# and sumamrizes them
+# and summarizes them
 
 library(raster); library(ggplot2); library(viridis); library(snow)
 rasterOptions(chunksize = 1e+09)
@@ -30,10 +30,10 @@ rm(dat_fire, dat_fire2); gc()
 
 # list_tabulation <- list()
 # for(i in 1:length(vec_islands)){
-#   
+# 
 #   # list all rasters for island i
 #   vec_fileNames_i <- vec_fileNames[grep(vec_islands[[i]], vec_fileNames)]
-#   
+# 
 #   # stack rasters
 #   list_rasters_i <- parLapply(cl = makeCluster(10),
 #                               vec_fileNames_i,
@@ -41,82 +41,82 @@ rm(dat_fire, dat_fire2); gc()
 #                                 raster::raster(paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/prediction_rasters_MonthlyHistorical/',
 #                                               r))
 #   })
-#   
+# 
 #   gc()
-#   
+# 
 #   # count number of moderate risk pixels each month
 #   mod_pixels <-
 #     sapply(list_rasters_i, function(r){
-#       
+# 
 #       # get raster values
 #       r_vals <- values(r)
 #       r_vals <- r_vals[!is.na(r_vals)]
-#       
+# 
 #       # calculate number of pixels
-#       num_pixels <- length(r_vals[r_vals >= highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+#       num_pixels <- length(r_vals[r_vals >= highRiskThresholds[highRiskThresholds$island == 'Statewide',
 #                                                                'hiRiskThresh_25pctileBurned'] &
-#                                   r_vals < highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+#                                   r_vals < highRiskThresholds[highRiskThresholds$island == 'Statewide',
 #                                                               'hiRiskThresh_50pctileBurned']])
-#       
+# 
 #       # if result is empty, set num_pixels = 0
 #       if(length(num_pixels) == 0){
 #         num_pixels = 0
 #       }
-#       
+# 
 #       # return number of pixels
 #       gc()
 #       return(num_pixels)
-#       
+# 
 #       })
-#   
+# 
 #   # count number of high risk pixels each month
 #   high_pixels <-
 #     sapply(list_rasters_i, function(r){
-#       
+# 
 #       # get raster values
 #       r_vals <- values(r)
 #       r_vals <- r_vals[!is.na(r_vals)]
-#       
+# 
 #       # calculate number of pixels
-#       num_pixels <- length(r_vals[r_vals >= highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+#       num_pixels <- length(r_vals[r_vals >= highRiskThresholds[highRiskThresholds$island == 'Statewide',
 #                                                                'hiRiskThresh_50pctileBurned'] &
-#                                     r_vals < highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+#                                     r_vals < highRiskThresholds[highRiskThresholds$island == 'Statewide',
 #                                                                 'hiRiskThresh_75pctileBurned']])
-#       
+# 
 #       # if result is empty, set num_pixels = 0
 #       if(length(num_pixels) == 0){
 #         num_pixels = 0
 #       }
-#       
+# 
 #       # return number of pixels
 #       gc()
 #       return(num_pixels)
-#       
+# 
 #     })
-#   
+# 
 #   # count number of very high risk pixels each month
 #   vhigh_pixels <-
 #     sapply(list_rasters_i, function(r){
-#       
+# 
 #       # get raster values
 #       r_vals <- values(r)
 #       r_vals <- r_vals[!is.na(r_vals)]
-#       
+# 
 #       # calculate number of pixels
-#       num_pixels <- length(r_vals[r_vals >= highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+#       num_pixels <- length(r_vals[r_vals >= highRiskThresholds[highRiskThresholds$island == 'Statewide',
 #                                                                'hiRiskThresh_75pctileBurned']])
-#       
+# 
 #       # if result is empty, set num_pixels = 0
 #       if(length(num_pixels) == 0){
 #         num_pixels = 0
 #       }
-#       
+# 
 #       # return number of pixels
 #       gc()
 #       return(num_pixels)
-#       
+# 
 #     })
-#   
+# 
 #   # compile data
 #   dat_pixelTabulation <- data.frame(island = vec_islands[[i]],
 #                                     yearmo = sapply(vec_fileNames_i, function(s){
@@ -125,9 +125,11 @@ rm(dat_fire, dat_fire2); gc()
 #                                     modRisk_pixels = mod_pixels,
 #                                     highRisk_pixels = high_pixels,
 #                                     veryHighRisk_pixels = vhigh_pixels)
-#   
+# 
 #   list_tabulation[[i]] <- dat_pixelTabulation
 #   
+#   print(paste(i, '-', Sys.time()))
+# 
 #   gc()
 # }
 # 

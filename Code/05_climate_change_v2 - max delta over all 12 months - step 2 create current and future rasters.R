@@ -28,7 +28,7 @@ vec_model <- c('sta', 'dyn')
 
 
 
-##### create mean current probability rasters by season #####
+##### create max current probability rasters by season #####
 
 for(i in 1:length(vec_islands)){
   for(s in 1:length(vec_season)){
@@ -60,14 +60,15 @@ for(i in 1:length(vec_islands)){
     rasterStack <- stack(list_rasters)
     rm(list_rasters); gc()
     
-    # get mean fire prob
+    # get max fire prob
     beginCluster(8)
-    raster_final <- clusterR(rasterStack, calc, args = list(mean))
+    raster_final <- clusterR(rasterStack, calc, args = list(max))
     endCluster()
     
     # write raster
     writeRaster(raster_final, filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/prediction_rasters_mean/prediction rasters mean by season/',
-                                                'mean current fire prob ', vec_islands[[i]], ' ', vec_season[[s]], ' season.tif'))
+                                                'mean current fire prob ', vec_islands[[i]], ' ', vec_season[[s]], ' season.tif'),
+                overwrite = TRUE)
     
     gc()
     
@@ -77,7 +78,7 @@ for(i in 1:length(vec_islands)){
 
 
 
-##### create current mean probability - overall annual #####
+##### create current max probability - overall annual #####
 
 for(i in 1:length(vec_islands)){
     
@@ -95,14 +96,15 @@ for(i in 1:length(vec_islands)){
     rasterStack <- stack(list_rasters)
     rm(list_rasters); gc()
     
-    # get mean fire prob
+    # get max fire prob
     beginCluster(8)
-    raster_final <- clusterR(rasterStack, calc, args = list(mean))
+    raster_final <- clusterR(rasterStack, calc, args = list(max))
     endCluster()
     
     # write raster
     writeRaster(raster_final, filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/prediction_rasters_mean/prediction rasters mean by season/',
-                                                'mean current fire prob ', vec_islands[[i]], ' overall annual.tif'))
+                                                'mean current fire prob ', vec_islands[[i]], ' overall annual.tif'),
+                overwrite = TRUE)
     
     gc()
 }
@@ -173,7 +175,7 @@ for(i in 1:length(vec_islands)){
         
         # find max month-wise delta for each pixel
         beginCluster(8)
-        r_maxDelta <- clusterR(rasterStack, calc, args = list(mean))
+        r_maxDelta <- clusterR(rasterStack, calc, args = list(max))
         endCluster()
         
         # write raster
@@ -241,7 +243,7 @@ for(i in 1:length(vec_islands)){
         
         # find max month-wise delta for each pixel
         beginCluster(8)
-        r_maxDelta <- clusterR(rasterStack, calc, args = list(mean))
+        r_maxDelta <- clusterR(rasterStack, calc, args = list(max))
         endCluster()
         
         # write raster

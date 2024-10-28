@@ -5,7 +5,7 @@ options(scipen=999)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 library(raster)
-library(rgdal)
+#library(rgdal)
 library(sp)
 library(exactextractr)
 library(stringr)
@@ -813,9 +813,9 @@ m1.3.1.bi<-gam(burnt~ s(herbcov_yearof, bs="tp", k=5)+
                        s(rf_1mo_prior, bs="tp", k=5)+
                        s(monthly_cumrf_3mo, bs="tp", k=5)+
                        s(monthly_cumrf_12mo, bs="tp", k=5)+
-                       te(herbcov_yearof,rf_1mo_prior)+
-                       te(herbcov_yearof,monthly_cumrf_3mo)+
-                       te(herbcov_yearof,monthly_cumrf_12mo)+
+                       #te(herbcov_yearof,rf_1mo_prior)+
+                       #te(herbcov_yearof,monthly_cumrf_3mo)+
+                       #te(herbcov_yearof,monthly_cumrf_12mo)+
                        s(year, bs="re",by=dum),data=bidat, family=binomial)
 Sys.time()-a
 summary(m1.3.1.bi)
@@ -829,9 +829,9 @@ m1.3.1.mn<-gam(burnt~ s(herbcov_yearof, bs="tp", k=5)+
                  s(rf_1mo_prior, bs="tp", k=5)+
                  s(monthly_cumrf_3mo, bs="tp", k=5)+
                  s(monthly_cumrf_12mo, bs="tp", k=5)+
-                 te(herbcov_yearof,rf_1mo_prior)+
-                 te(herbcov_yearof,monthly_cumrf_3mo)+
-                 te(herbcov_yearof,monthly_cumrf_12mo)+
+                 #te(herbcov_yearof,rf_1mo_prior)+
+                 #te(herbcov_yearof,monthly_cumrf_3mo)+
+                 #te(herbcov_yearof,monthly_cumrf_12mo)+
                  s(year, bs="re",by=dum),data=mndat, family=binomial)
 Sys.time()-a
 summary(m1.3.1.mn)
@@ -845,12 +845,31 @@ m1.3.2.mn<-gam(burnt~ s(herbcov_yearof, bs="tp", k=5)+
                  s(rf_1mo_prior, bs="tp", k=5)+
                  s(monthly_cumrf_3mo, bs="tp", k=5)+
                  s(monthly_cumrf_12mo, bs="tp", k=5)+
-                 te(herbcov_yearof,rf_1mo_prior)+
-                 te(herbcov_yearof,monthly_cumrf_3mo)+
-                 te(herbcov_yearof,monthly_cumrf_12mo)+
+                 #te(herbcov_yearof,rf_1mo_prior)+
+                 #te(herbcov_yearof,monthly_cumrf_3mo)+
+                 #te(herbcov_yearof,monthly_cumrf_12mo)+
                  s(year, bs="re",by=dum),data=mndat, family=binomial)
 Sys.time()-a
 summary(m1.3.2.mn)
+
+a<-Sys.time()  # additional Maui model: test interaction of landcovers 
+m1.3.3.mn<-gam(burnt~ s(herbcov_yearof, bs="tp", k=5)+
+                 s(woodcov_yearof, bs="tp", k=5)+
+                 te(herbcov_yearof,woodcov_yearof)+
+                 s(HI_EVAP_min_monthly_soil_mst, bs="tp", k=5)+
+                 #s(maxTemp_C, bs="tp", k=5)+
+                 s(rf_1mo_prior, bs="tp", k=5)+
+                 s(monthly_cumrf_3mo, bs="tp", k=5)+
+                 s(monthly_cumrf_12mo, bs="tp", k=5)+
+                 #te(herbcov_yearof,rf_1mo_prior)+
+                 #te(herbcov_yearof,monthly_cumrf_3mo)+
+                 #te(herbcov_yearof,monthly_cumrf_12mo)+
+                 s(year, bs="re",by=dum),data=mndat, family=binomial)
+Sys.time()-a
+summary(m1.3.3.mn)
+saveRDS(m1.3.3.mn,
+        file = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/2021_09_FIRE_Hawaii_all_isl_EXTRACTION/Kauai and Maui landcover interaction model test/',
+                      'm1.3.3.mn.rds'))
 
 
 
@@ -866,9 +885,9 @@ m1.3.1.oa<-gam(burnt~ s(herbcov_yearof, bs="tp", k=5)+
                  s(rf_1mo_prior, bs="tp", k=5)+
                  s(monthly_cumrf_3mo, bs="tp", k=5)+
                  s(monthly_cumrf_12mo, bs="tp", k=5)+
-                 te(herbcov_yearof,rf_1mo_prior)+
-                 te(herbcov_yearof,monthly_cumrf_3mo)+
-                 te(herbcov_yearof,monthly_cumrf_12mo)+
+                 #te(herbcov_yearof,rf_1mo_prior)+
+                 #te(herbcov_yearof,monthly_cumrf_3mo)+
+                 #te(herbcov_yearof,monthly_cumrf_12mo)+
                  s(year, bs="re",by=dum),data=oadat, family=binomial)
 Sys.time()-a
 summary(m1.3.1.oa)
@@ -884,9 +903,9 @@ m1.3.1.kaoa<-gam(burnt~ s(herbcov_yearof, bs="tp", k=5)+
                  s(rf_1mo_prior, bs="tp", k=5)+
                  s(monthly_cumrf_3mo, bs="tp", k=5)+
                  s(monthly_cumrf_12mo, bs="tp", k=5)+
-                 te(herbcov_yearof,rf_1mo_prior)+
-                 te(herbcov_yearof,monthly_cumrf_3mo)+
-                 te(herbcov_yearof,monthly_cumrf_12mo)+
+                 #te(herbcov_yearof,rf_1mo_prior)+
+                 #te(herbcov_yearof,monthly_cumrf_3mo)+
+                 #te(herbcov_yearof,monthly_cumrf_12mo)+
                  s(year, bs="re",by=dum),data=kaoadat, family=binomial)
 Sys.time()-a
 summary(m1.3.1.kaoa)
@@ -902,12 +921,33 @@ m1.3.1.ka<-gam(burnt~ s(herbcov_yearof, bs="tp", k=5)+
                  s(rf_1mo_prior, bs="tp", k=5)+
                  s(monthly_cumrf_3mo, bs="tp", k=5)+
                  s(monthly_cumrf_12mo, bs="tp", k=5)+
-                 te(herbcov_yearof,rf_1mo_prior)+
-                 te(herbcov_yearof,monthly_cumrf_3mo)+
-                 te(herbcov_yearof,monthly_cumrf_12mo)+
+                 #te(herbcov_yearof,rf_1mo_prior)+
+                 #te(herbcov_yearof,monthly_cumrf_3mo)+
+                 #te(herbcov_yearof,monthly_cumrf_12mo)+
                  s(year, bs="re",by=dum),data=kadat, family=binomial)
 Sys.time()-a
 summary(m1.3.1.ka)
+
+
+a<-Sys.time()  # additional Kauai model: test interaction of landcovers 
+m1.3.2.ka<-gam(burnt~ s(herbcov_yearof, bs="tp", k=5)+
+                 s(woodcov_yearof, bs="tp", k=5)+
+                 te(herbcov_yearof,woodcov_yearof)+ #####
+               s(HI_EVAP_min_monthly_soil_mst, bs="tp", k=5)+
+                 #s(maxTemp_C, bs="tp", k=5)+
+                 s(mean_annual_temp, bs="tp", k=5)+s(ign_trns, bs="tp", k=5)+
+                 s(rf_1mo_prior, bs="tp", k=5)+
+                 s(monthly_cumrf_3mo, bs="tp", k=5)+
+                 s(monthly_cumrf_12mo, bs="tp", k=5)+
+                 #te(herbcov_yearof,rf_1mo_prior)+
+                 #te(herbcov_yearof,monthly_cumrf_3mo)+
+                 #te(herbcov_yearof,monthly_cumrf_12mo)+
+                 s(year, bs="re",by=dum),data=kadat, family=binomial)
+Sys.time()-a
+summary(m1.3.2.ka)
+saveRDS(m1.3.2.ka,
+        file = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/2021_09_FIRE_Hawaii_all_isl_EXTRACTION/Kauai and Maui landcover interaction model test/',
+                      'm1.3.2.ka.rds'))
 
 
 
@@ -965,8 +1005,9 @@ evaloa<-evaluate(oadat)
 evalkaoa<-evaluate(kaoadat)
 evalbi<-evaluate(bidat)
 evalmn<-evaluate(mndat)
+Sys.time()-a
 
-save(m1.3.1.bi, m1.3.1.ka, m1.3.1.kaoa, m1.3.1.mn, m1.3.2.mn, m1.3.1.oa,
+save(m1.3.1.bi, m1.3.1.ka, m1.3.2.ka, m1.3.1.kaoa, m1.3.1.mn, m1.3.2.mn, m1.3.3.mn, m1.3.1.oa,
      evalbi, evalka, evalkaoa, evalmn, evaloa,
      file = "H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/2021_09_FIRE_Hawaii_all_isl_EXTRACTION/2021_09_models_and_evals.Rdata")
 save(evalbi, evalka, evalkaoa, evalmn, evaloa, file = "H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/2021_09_FIRE_Hawaii_all_isl_EXTRACTION/2021_09_evals_UPDATED.Rdata")
@@ -1385,3 +1426,16 @@ dev.off()
 plot(	probs)
 
 
+
+
+##### model summaries: MCC Matthews coefficient, explained deviance #####
+
+# load models
+load("H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/2021_09_FIRE_Hawaii_all_isl_EXTRACTION/2021_09_models_and_evals.Rdata")
+
+# explained deviance
+summary(m1.3.1.bi)$dev.expl
+summary(m1.3.1.kaoa)$dev.expl
+summary(m1.3.1.ka)$dev.expl
+summary(m1.3.1.mn)$dev.expl
+summary(m1.3.1.oa)$dev.expl

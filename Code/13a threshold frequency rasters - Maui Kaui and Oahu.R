@@ -14,7 +14,7 @@ load('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/10_determin
 rm(dat_fire, dat_fire2)
 
 # define islands
-vec_islands <- c('Oahu', 'Kauai', 'MauiCounty', 'Hawaii')
+vec_islands <- c('Oahu', 'Kauai', 'MauiCounty')
 
 # for each island, create monthly dummy rasters saying whether the given risk threshold was surpassed
 for(i in 1:length(vec_islands)){
@@ -33,7 +33,7 @@ for(i in 1:length(vec_islands)){
   for(m in 1:length(list_historicalRasters)){
     list_dummyRasterLowThreshold[[m]] <- list_historicalRasters[[m]]  # copy month m raster
     values(list_dummyRasterLowThreshold[[m]]) <- ifelse(values(list_historicalRasters[[m]]) >
-                                                        highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+                                                        highRiskThresholds[highRiskThresholds$island == 'Statewide',
                                                                            'hiRiskThresh_25pctileBurned'],
                                                 1, 0)
   }
@@ -49,7 +49,7 @@ for(i in 1:length(vec_islands)){
   for(m in 1:length(list_historicalRasters)){
     list_dummyRasterModerateThreshold[[m]] <- list_historicalRasters[[m]]  # copy month m raster
     values(list_dummyRasterModerateThreshold[[m]]) <- ifelse(values(list_historicalRasters[[m]]) >
-                                                          highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+                                                          highRiskThresholds[highRiskThresholds$island == 'Statewide',
                                                                              'hiRiskThresh_50pctileBurned'],
                                                         1, 0)
   }
@@ -64,7 +64,7 @@ for(i in 1:length(vec_islands)){
   for(m in 1:length(list_historicalRasters)){
     list_dummyRasterHighThreshold[[m]] <- list_historicalRasters[[m]]  # copy month m raster
     values(list_dummyRasterHighThreshold[[m]]) <- ifelse(values(list_historicalRasters[[m]]) >
-                                                               highRiskThresholds[highRiskThresholds$island == vec_islands[[i]],
+                                                               highRiskThresholds[highRiskThresholds$island == 'Statewide',
                                                                                   'hiRiskThresh_75pctileBurned'],
                                                              1, 0)
   }
@@ -73,5 +73,7 @@ for(i in 1:length(vec_islands)){
                                                            vec_islands[[i]], '.rds'))
   rm(list_dummyRasterHighThreshold, dummyRasterStack_highFireRisk)
   gc()
+  
+  print(paste0(i, ' - ', Sys.time()))
   
 }

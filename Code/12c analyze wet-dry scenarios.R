@@ -11,6 +11,7 @@ scenarios <- c('Dry-dry',  'Dry-wet', 'Wet-dry', 'Wet-wet')
 
 # for each island, create mean wet-dry scenario
 dat_Freq <- list()
+dat_FreqSummary <- list()
 for(i in 1:length(islands)){
   
   
@@ -90,7 +91,7 @@ for(i in 1:length(islands)){
   rm(dat_fire,  dat_fire2)
   
   # create risk level variable
-  vec_riskLevel <- unlist(highRiskThresholds[highRiskThresholds$island == gsub(' ', '', islands[[i]]),
+  vec_riskLevel <- unlist(highRiskThresholds[highRiskThresholds$island == gsub(' ', '', 'Statewide'),
                                              c("hiRiskThresh_25pctileBurned", "hiRiskThresh_50pctileBurned", "hiRiskThresh_75pctileBurned")])
   dat_fireProbAndRisk$riskLevel <- with(dat_fireProbAndRisk, ifelse(value  < vec_riskLevel[[1]],                              'Low',
                                                                     ifelse(value >= vec_riskLevel[[1]] & value < vec_riskLevel[[2]], 'Moderate',
@@ -103,6 +104,17 @@ for(i in 1:length(islands)){
             file = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/12c fire risk level thresholds/',
                           'fire risk threshold - ', islands[[i]], '.csv'),
             row.names = FALSE)
+  
+  
+  # create summary table
+  dat_fireProbAndRisk$scenario_shortLongTerm <-
+    with(dat_fireProbAndRisk, paste0(scenario_shortTerm, scenario_longTerm))
+  dat_summary <-
+    dat_fireProbAndRisk %>% count(scenario_shortLongTerm, riskLevel)
+  dat_summary$pct_area <-
+    dat_summary$n / sum(dat_summary$n[1:4]) * 100
+  dat_summary$hectares_1000s <-
+    dat_summary$n * 0.09 / 1000
   
   
   

@@ -1,8 +1,8 @@
 
-library(raster); library(ggplot2)
+library(raster); library(ggplot2); library(MLeval); library(dplyr)
 
 # load fire data
-dat_fire <- readRDS('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/fire_pixel_data.rds')
+dat_fire <- readRDS('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire - PROTECT/fire_pixel_data.rds')
 dat_fire2 <- dat_fire
 
 # create data.frame from dat_fire
@@ -57,6 +57,7 @@ summary(dat_fire2[dat_fire2$status == 'Burned',   'values'])
 
 ##### determine high fire risk threshold - 25th, 50th, and 75th percentile of burned pixels #####
 
+
 # define high-risk as function of fire probability within burned pixels, by island
 
 # get 25th percentile probability for burned pixels by island
@@ -69,6 +70,9 @@ highRiskThresholds$hiRiskThresh_50pctileBurned <- aggregate(dat_fire2[dat_fire2$
 # get 75th percentile fire probability for burned pixels by island
 highRiskThresholds$hiRiskThresh_75pctileBurned <- aggregate(dat_fire2[dat_fire2$status == 'Burned', 'prob_burned'], list(dat_fire2[dat_fire2$status == 'Burned', 'island']), function(x) quantile(x, probs = 0.75, na.rm = TRUE))[,2]
 
+
+# repeat, but create cutoffs based on statewide (rather than island-specific) fires
+highRiskThresholds_statewide <- quantile(dat_fire2[dat_fire2$status == 'Burned', 'prob_burned'], probs = c(0.25, 0.50, 0.75), na.rm = TRUE)
 
 
 
@@ -147,11 +151,14 @@ for(i in 1:nrow(threshold_percentiles_within_burned_pixels)){
 ##### regress burn area onto number of high-risk pixels #####
 
 # by island and year, count number of burned pixels
-pixels_burned <- aggregate(dat_fire2[dat_fire2$status == 'Burned', 'status'], list(dat_fire2[dat_fire2$status == 'Burned', 'island'], dat_fire2[dat_fire2$status == 'Burned', 'year']), length)
+pixels_burned <- aggregate(dat_fire2[dat_fire2$status == 'Burned', 'status'],
+                           list(dat_fire2[dat_fire2$status == 'Burned', 'island'],
+                                dat_fire2[dat_fire2$status == 'Burned', 'year']),
+                           length)
 colnames(pixels_burned) <- c('island', 'year', 'num_burned_pixels')
 
 # by island and year, count number of high-risk pixels
-pixels_highRisk <- aggregate(dat_fire2[dat_fire2$fire_highRisk == 1, 'fire_highRisk'], list(dat_fire2[dat_fire2$fire_highRisk == 1, 'island'], dat_fire2[dat_fire2$fire_highRisk == 1, 'year']), length)
+pixels_highRisk <- aggregate(dat_fire2[dat_fire2$fireHighRisk_50pctileBurned == 1, 'fireHighRisk_50pctileBurned'], list(dat_fire2[dat_fire2$fireHighRisk_50pctileBurned == 1, 'island'], dat_fire2[dat_fire2$fireHighRisk_50pctileBurned == 1, 'year']), length)
 colnames(pixels_highRisk) <- c('island', 'year', 'num_highRisk_pixels')
 
 # merge data
@@ -188,4 +195,78 @@ ggsave('H:/My Drive/Projects/PICASC Land-to-sea/Figures and tables/Figures/Fire/
 
 ##### save data #####
 
-save(dat_fire, dat_fire2, highRiskThresholds, file = 'H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/10_determine high risk threshold.Rdata')
+# add statewide data to island-specific data
+highRiskThresholds[nrow(highRiskThresholds)+1,] <- c('Statewide', highRiskThresholds_statewide, NA, NA, NA)
+highRiskThresholds <-
+  highRiskThresholds %>%
+  mutate_at(c("hiRiskThresh_25pctileBurned", "hiRiskThresh_50pctileBurned", "hiRiskThresh_75pctileBurned", "hiRiskThresh_MCC", "hiRiskThresh_F1", "hiRiskThresh_Informedness"),
+            as.numeric)
+
+save(dat_fire, dat_fire2, highRiskThresholds, file = 'H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire  - PROTECT/10_determine high risk threshold.Rdata')
+
+saveRDS(highRiskThresholds,
+        file = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Figures and tables/Tables/Fire/',
+                      '10a fire risk thresholds.rds'))
+write.csv(highRiskThresholds,
+          file = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Figures and tables/Tables/Fire/',
+                        '10a fire risk thresholds.csv'))
+
+
+
+
+
+
+
+
+
+##### method 2 - use percentiles from Jolly et. al #####
+
+# https://www.mdpi.com/2571-6255/2/3/47
+
+library(terra)
+
+
+
+
+##### read fire probs from historical rasters #####
+
+# list rasters
+list_rast_names <-
+  list.files('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire - PROTECT/prediction_rasters_MonthlyHistorical',
+             full.names = TRUE, pattern = '.tif')
+
+# extract probabilities from each raster
+list_rast_values <- list()
+for(r in 1:length(list_rast_names)){
+  
+  # load raster
+  ras <- rast(list_rast_names[[r]])
+  
+  # extract values and store them
+  list_rast_values[[r]] <- values(ras, na.rm = TRUE, mat = FALSE)
+  
+  rm(ras); gc()
+  print(r)
+}
+
+# combine and values and clean up
+vec_rast_values <- do.call(c, list_rast_values)
+saveRDS(vec_rast_values,
+        file = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire  - PROTECT/10 - fire risk thresholds/',
+                      '10a - vec of all historical pixel-level fire probabilities.rds'))
+rm(list_rast_values, r, list_rast_names)
+gc()
+
+# get percentiles
+vec_percentiles <- quantile(vec_rast_values, probs = c(0.00, 0.60, 0.80, 0.90, 0.97, 1.00))
+gc()
+
+# save percentiles
+dat_percentiles <- as.data.frame(vec_percentiles)
+write.csv(dat_percentiles,
+          file = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Figures and tables/Tables/Fire/',
+                        '10a fire risk thresholds - Jolly et al percentiles.csv'),
+          row.names = TRUE)
+saveRDS(dat_percentiles,
+        file = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Figures and tables/Tables/Fire/',
+                      '10a fire risk thresholds - Jolly et al percentiles.rds'))

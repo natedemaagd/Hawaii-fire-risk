@@ -47,7 +47,7 @@ rm(raster_current_rainfall_byIsland, raster_current_temp_byIsland); gc()
 ##### find how much current range is exceeded in future #####
 
 # rainfall
-rasters_future_rain_filenames <- list.files('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/future_climate_rasters/rain/', pattern = '.tif')
+rasters_future_rain_filenames <- list.files('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/future_climate_rasters/rain/', pattern = 'future_rain')
 foreach(i = 1:length(rasters_future_rain_filenames), .packages = c('raster', 'dplyr')) %dopar% {
   
   # load raster i
@@ -80,7 +80,7 @@ foreach(i = 1:length(rasters_future_rain_filenames), .packages = c('raster', 'dp
 gc()
 
 # temperature
-rasters_future_temp_filenames <- list.files('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/future_climate_rasters/temp/', pattern = '.tif')
+rasters_future_temp_filenames <- list.files('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/future_climate_rasters/temp/', pattern = 'future_temp')
 foreach(i = 1:length(rasters_future_temp_filenames), .packages = c('raster', 'dplyr')) %dopar% {
   
   # load raster i

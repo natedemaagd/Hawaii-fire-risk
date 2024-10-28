@@ -1,5 +1,5 @@
 
-# this script finds the max fire historical risk probability for each pixel and summarizes them
+# this script finds the max fire historical risk probability for each pixel and summarizes them (sums over ALL HISTORICAL MONTHS - for mean annual climate, see 14c V2)
 
 library(raster); library(ggplot2); library(viridis); library(snow)
 

@@ -49,21 +49,24 @@ for(i in 1:length(islands)){
   
   # subset data for island i
   plotdat <- dat_freq[dat_freq$island == islands[[i]],]
+  plotdat$pctMonths <- plotdat$freq*100
   
   # plot melted data for island i
   p1 <- ggplot() +
-    geom_raster(data = plotdat[plotdat$freq > 0,], aes(x = x, y = y, fill = freq)) +
+    geom_raster(data = plotdat[plotdat$pctMonths > 0,], aes(x = x, y = y, fill = pctMonths)) +
     facet_wrap(vars(risk), ncol = length(unique(plotdat$risk))) +
-    scale_fill_viridis(limits = c(0,1), breaks = seq(0,1,0.2))
+    scale_fill_viridis(limits = c(0,100), breaks = seq(0,100,20))
   
   plot_list[[i]] <- p1 +
-    geom_raster(data = plotdat[plotdat$freq == 0 & !(is.na(plotdat$freq)),], aes(x = x, y = y), fill = 'lightgray') +
-    labs(x = NULL, y = NULL, fill = 'Frequency') +
+    geom_raster(data = plotdat[plotdat$pctMonths == 0 & !(is.na(plotdat$pctMonths)),], aes(x = x, y = y), fill = 'lightgray') +
+    labs(x = NULL, y = NULL, fill = '% months\n1999-2016') +
     coord_equal() +
     theme(text = element_text(size = 15), panel.background = element_blank(), axis.text = element_blank(),
-          axis.ticks = element_blank(), axis.title = element_blank(), legend.position = 'right')
+          axis.ticks = element_blank(), axis.title = element_blank(), legend.position = 'bottom',
+          strip.background = element_blank(),
+          strip.text.x = element_blank())
   
-  ggsave(p2, filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Figures and tables/Figures/Fire/Figures for publication/Risk frequency plots/freqPlot_',
+  ggsave(plot_list[[i]], filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Figures and tables/Figures/Fire/Figures for publication/Risk frequency plots/freqPlot_',
                                islands[[i]], '.png'),
          dpi = 300, width = 8, height = 3)
   
@@ -78,7 +81,7 @@ names(plot_list) <- islands
 ##### save plots without legends #####
 
 # extract legend from one plot to  save separately
-plotLegend <- get_legend(plot_list[[1]])
+plotLegend <- get_legend(plot_list[[4]])
 ggsave(plotLegend, filename = 'H:/My Drive/Projects/PICASC Land-to-sea/Figures and tables/Figures/Fire/Figures for publication/Risk frequency plots/plotLegend.png',
        dpi = 300, height = 3, width = 1)
 gc()

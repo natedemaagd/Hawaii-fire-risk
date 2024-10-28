@@ -29,11 +29,34 @@ model_list <- list(m1.3.1.bi, m1.3.1.oa, m1.3.1.ka, m1.3.1.mn)
 
 
 
+###############################################
+########## KAUAI AND MAUI TEST MODELS #########
+###############################################
+
+# load models
+m1.3.2.ka <-
+  readRDS(paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/2021_09_FIRE_Hawaii_all_isl_EXTRACTION/Kauai and Maui landcover interaction model test/',
+                 'm1.3.2.ka.rds'))
+m1.3.3.mn <-
+  readRDS(paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/2021_09_FIRE_Hawaii_all_isl_EXTRACTION/Kauai and Maui landcover interaction model test/',
+                 'm1.3.3.mn.rds'))
+
+# replace kauai model in model list
+model_list[[3]] <- m1.3.2.ka
+model_list[[4]] <- m1.3.3.mn
+
+###############################################
+###############################################
+###############################################
+
+
+
 
 # load/create rasters, stack them, and save prediction raster with SEs
 # island i, month m (month starts at 4 since prediction requires prior 3 months)
-for(i in 4:4){
-  for(m in 4:length(month)){
+for(i in 1:4){  # for running new Kauai/Maui test models with herb/woody interaction
+#for(i in 1:4){
+  for(m in 4:length(month)){   # 4:length(month)
     
     # herb cover, wood cover, soil moisture, max temp, annual temp, and ignition rasters
     herbcov_yearof <- raster(paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/raster_stacks/herbcov_yearof/herbcov_yearof_', island[[i]], '_2016_.tif'))
@@ -106,13 +129,14 @@ for(i in 4:4){
     raster_predVals <- herbcov_yearof  # choose random raster to place pred vals into
     values(raster_predVals) <- c(pred.vals$fit)
     writeRaster(raster_predVals, filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/prediction_rasters_mean/',
-                                                   'monthly_mean_fire_prob_', island[[i]], '_month', month[[m]], '.tif'), overwrite = TRUE)
+                                                   'monthly_mean_fire_prob_', island[[i]], '_month', month[[m]], '-landcoverInteraction.tif'), overwrite = TRUE)
     
     raster_predSEs <- herbcov_yearof  # choose random raster to place pred vals into
     values(raster_predSEs) <- c(pred.vals$se.fit)
     writeRaster(raster_predSEs, filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/prediction_rasters_mean/',
-                                                  'monthly_mean_fire_prob_', island[[i]], '_month', month[[m]], '_SE.tif'), overwrite = TRUE)
+                                                  'monthly_mean_fire_prob_', island[[i]], '_month', month[[m]], '_SE-landcoverInteraction.tif'), overwrite = TRUE)
     
     gc()
+    print(paste(i, m))
   }
 }

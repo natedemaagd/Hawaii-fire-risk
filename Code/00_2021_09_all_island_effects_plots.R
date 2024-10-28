@@ -1,4 +1,4 @@
-library(data.table); library(mgcv); library(ggplot2)
+library(data.table); library(mgcv); library(ggplot2); library(e1071)
 #bigextfinal<-readRDS("H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/2021_09_FIRE_Hawaii_all_isl_EXTRACTION/bigextfinal.rds")
 bigextfinal<-fread( "H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/2021_09_FIRE_Hawaii_all_isl_EXTRACTION/2021_07_allisl_monthly_fire_250m_samp_wgs84_OVERWRITE.csv")
 
@@ -204,6 +204,12 @@ predictornames_df<-data.frame(predictornames=c("herbcov_yearof", "woodcov_yearof
                                                "Mean annual temperature (C)", "Ignition density","HI_DEM_10m" , "X2020_Hawaii_population_GHS_global_250m",
                                                "Rainfall, previous 12 months (mm)", "Rainfall, previous 3 months (mm)", "Rainfall, previous month (mm)", "Rainfall, previous month (mm)", "Same-month rainfall (mm)",
                                                "Aspect" ,"Roughness"))
+
+predictornames_full<-c("herbcov_yearof", "woodcov_yearof", "barecov_yearof", 
+                       "mean_annual_rainfall", "HI_EVAP_min_monthly_soil_mst", 
+                       "mean_annual_temp", "ign_trns","HI_DEM_10m" , "X2020_Hawaii_population_GHS_global_250m" , "mean_annual_rainfall", "monthly_cumrf_18mo",
+                       "monthly_cumrf_12mo", "monthly_cumrf_3mo", "monthly_rf_0_mo_prior",
+                       "aspect" ,"roughness")
 
 
 

@@ -38,6 +38,7 @@ for(i in 1:length(shp_split)){
   fire_island <- shp$island[[i]]
   fire_year   <- shp$year[[i]]
   fire_month  <- shp$month[[i]]
+  if(fire_year > 2016){next}  # skip if fire occurred in year for which we don't have risk data
   fire_raster <- raster(paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/prediction_rasters_MonthlyHistorical/monthly_mean_fire_prob_',
                                fire_island, '_', fire_year, fire_month, '.tif'))
   

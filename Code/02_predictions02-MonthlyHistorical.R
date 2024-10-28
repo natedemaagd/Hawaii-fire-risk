@@ -1,4 +1,5 @@
 library(raster)
+rasterOptions(tmpdir="C:/Users/nated/Downloads/tempDir")
 
 # define islands, months, years
 island <- c('Hawaii', 'Oahu', 'Kauai', 'MauiCounty')
@@ -33,7 +34,11 @@ rf_files <- list.files('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediat
 
 
 # load/create rasters, stack them, and save prediction raster
-for(i in 4:4){
+for(i in 1:4){
+  
+  # start timer for removal of temp rasters
+  a <- Sys.time()
+  
   for(y in 1:length(years)){
   for(m in 4:length(month)){
     
@@ -98,11 +103,18 @@ for(i in 4:4){
     
     # write raster
     writeRaster(raster_predict, filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Processed/Fire/prediction_rasters_MonthlyHistorical/',
-                                                'monthly_mean_fire_prob_', island[[i]], '_', years[[y]], month[[m]], '.tif'),
+                                                  'monthly_mean_fire_prob_', island[[i]], '_', years[[y]], month[[m]], '.tif'),
                 overwrite = TRUE)
     
     gc()
     removeTmpFiles(1)
+    
+    # if an hour has passed, restore temporary rasters and restart timer
+    if(Sys.time() - a > 3600){
+      monthly_cumrf_12mo_statewide <- raster("H:/My Drive/Projects/PICASC Land-to-sea/Data/Raw/2021_HI_FIre_Model_Data/rainfall_ann/HI_EVAP_mean_annual_rainfall__statewide_250m.tif")
+      raster_lc <- raster('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/raster_stacks/stack_BaseLandcover_30m_latlon.tif')
+      a <- Sys.time()
+    }
   }
   }
 }

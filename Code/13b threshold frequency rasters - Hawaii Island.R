@@ -25,7 +25,7 @@ for(m in 1:length(list_filenames)){
   # dummy raster generation: did the fire probability threshold get passed? LOW PROBABILITY
   raster_lowProbDummy <- raster_probability
   values(raster_lowProbDummy) <- ifelse(values(raster_probability) >
-                                          highRiskThresholds[highRiskThresholds$island == vec_islands[[1]],
+                                          highRiskThresholds[highRiskThresholds$island == 'Statewide',
                                                              'hiRiskThresh_25pctileBurned'],
                                         1, 0)
   writeRaster(raster_lowProbDummy, filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/13a fire risk threshold surpass dummy rasters/13b Hawaii Island individual rasters/dummyRaster_lowFireRisk_Hawaii_',
@@ -35,7 +35,7 @@ for(m in 1:length(list_filenames)){
   # dummy raster generation: did the fire probability threshold get passed? MODERATE PROBABILITY
   raster_moderateProbDummy <- raster_probability
   values(raster_moderateProbDummy) <- ifelse(values(raster_probability) >
-                                          highRiskThresholds[highRiskThresholds$island == vec_islands[[1]],
+                                          highRiskThresholds[highRiskThresholds$island == 'Statewide',
                                                              'hiRiskThresh_50pctileBurned'],
                                         1, 0)
   writeRaster(raster_moderateProbDummy, filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/13a fire risk threshold surpass dummy rasters/13b Hawaii Island individual rasters/dummyRaster_moderateFireRisk_Hawaii_',
@@ -45,7 +45,7 @@ for(m in 1:length(list_filenames)){
   # dummy raster generation: did the fire probability threshold get passed? HIGH PROBABILITY
   raster_highProbDummy <- raster_probability
   values(raster_highProbDummy) <- ifelse(values(raster_probability) >
-                                          highRiskThresholds[highRiskThresholds$island == vec_islands[[1]],
+                                          highRiskThresholds[highRiskThresholds$island == 'Statewide',
                                                              'hiRiskThresh_75pctileBurned'],
                                         1, 0)
   writeRaster(raster_highProbDummy, filename = paste0('H:/My Drive/Projects/PICASC Land-to-sea/Data/Intermediate/Fire/13a fire risk threshold surpass dummy rasters/13b Hawaii Island individual rasters/dummyRaster_highFireRisk_Hawaii_',
